@@ -19,6 +19,7 @@ import org.mozilla.focus.Inject
 import org.mozilla.focus.R
 import org.mozilla.focus.provider.ScreenshotContract
 import org.mozilla.focus.search.SearchEngineManager
+import org.mozilla.focus.telemetry.TelemetryWrapper.EventBuilder.Companion.remoteConfigFetched
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.CLICK_NEXT
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.CLICK_PREVIOUS
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.DISMISS
@@ -63,6 +64,7 @@ object TelemetryWrapper {
 
     internal object Category {
         const val ACTION = "action"
+        const val EXPERIMENT = "exp"
     }
 
     internal object Method {
@@ -92,6 +94,7 @@ object TelemetryWrapper {
         const val SHOW = "show"
         const val LAUNCH = "launch"
         const val INIT = "init"
+        const val REMOTE_CONFIG_FETCHED = "rc_fetched"
     }
 
     internal object Object {
@@ -316,13 +319,129 @@ object TelemetryWrapper {
             method = Method.INIT,
             `object` = Object.FIREBASE,
             value = "null",
-            extras = [TelemetryExtra(name = Extra.TO, value = "true,false")]
-    )
+            extras = [])
     @JvmStatic
     fun firebaseRemoteConfigFetched() {
-        EventBuilder(Category.ACTION, Method.INIT, Object.FIREBASE)
-                .queue()
+        remoteConfigFetched = true
+        EventBuilder(Category.ACTION, Method.INIT, Object.FIREBASE).queue()
     }
+
+    @TelemetryDoc(
+        name = "RemoteConfig ready when first run ends",
+        category = Category.EXPERIMENT,
+        method = Method.REMOTE_CONFIG_FETCHED,
+        `object` = Object.FIRSTRUN,
+        value = Value.FINISH,
+        extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
+    )
+    fun statsFinishFirstRunEvent() {
+        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_RUN_END) {
+            EventBuilder(
+                Category.EXPERIMENT,
+                Method.REMOTE_CONFIG_FETCHED,
+                Object.FIRSTRUN,
+                Value.FINISH
+            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+        }
+    }
+
+    @TelemetryDoc(
+        name = "RemoteConfig ready when first run shown",
+        category = Category.EXPERIMENT,
+        method = Method.REMOTE_CONFIG_FETCHED,
+        `object` = Object.FIRSTRUN,
+        value = Value.ENTER,
+        extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
+    )
+    @JvmStatic
+    fun statsShowFirstRun() {
+        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_RUN_SHOWN) {
+            EventBuilder(
+                Category.EXPERIMENT,
+                Method.REMOTE_CONFIG_FETCHED,
+                Object.FIRSTRUN,
+                Value.ENTER
+            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+        }
+    }
+
+    @TelemetryDoc(
+        name = "RemoteConfig ready when Home Toolbar Level 1 shown",
+        category = Category.EXPERIMENT,
+        method = Method.REMOTE_CONFIG_FETCHED,
+        `object` = Object.HOME,
+        value = Value.ENTER,
+        extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
+    )
+    @JvmStatic
+    fun statsShowHome() {
+        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_HOME) {
+            EventBuilder(Category.EXPERIMENT, Method.REMOTE_CONFIG_FETCHED, Object.HOME, Value.ENTER)
+                .extra(Extra.SUCCESS, remoteConfigFetched.toString())
+                .queue()
+        }
+    }
+
+    @TelemetryDoc(
+        name = "RemoteConfig ready when Home Toolbar Level 2 shown",
+        category = Category.EXPERIMENT,
+        method = Method.REMOTE_CONFIG_FETCHED,
+        `object` = Object.HOME,
+        value = Value.TOOLBAR,
+        extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
+    )
+    @JvmStatic
+    fun statsShowMenuHome() {
+        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_HOME_MEU) {
+            EventBuilder(
+                Category.EXPERIMENT,
+                Method.REMOTE_CONFIG_FETCHED,
+                Object.HOME,
+                Value.TOOLBAR
+            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+        }
+    }
+
+    @TelemetryDoc(
+        name = "RemoteConfig ready when Browser Toolbar level 1 shown",
+        category = Category.EXPERIMENT,
+        method = Method.REMOTE_CONFIG_FETCHED,
+        `object` = Object.BROWSER,
+        value = Value.ENTER,
+        extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
+    )
+    @JvmStatic
+    fun statsRaiseBrowserScreen() {
+        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_BROWSER) {
+            EventBuilder(
+                Category.EXPERIMENT,
+                Method.REMOTE_CONFIG_FETCHED,
+                Object.BROWSER,
+                Value.ENTER
+            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+        }
+    }
+
+    @TelemetryDoc(
+        name = "RemoteConfig ready when Browser Toolbar level 2 shown",
+        category = Category.EXPERIMENT,
+        method = Method.REMOTE_CONFIG_FETCHED,
+        `object` = Object.BROWSER,
+        value = Value.TOOLBAR,
+        extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
+    )
+    @JvmStatic
+    fun statsShowMenuToolbar() {
+        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_BROWSER_MENU) {
+            EventBuilder(
+                Category.EXPERIMENT,
+                Method.REMOTE_CONFIG_FETCHED,
+                Object.BROWSER,
+                Value.TOOLBAR
+            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+        }
+    }
+
 
     @TelemetryDoc(
             name = "Turn on Turbo Mode in First Run",
@@ -1982,6 +2101,8 @@ object TelemetryWrapper {
         }
 
         companion object {
+
+            var remoteConfigFetched = false
 
             fun lazyInit() {
 
