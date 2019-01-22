@@ -23,6 +23,7 @@ import org.mozilla.focus.activity.MainActivity
 import org.mozilla.focus.firstrun.DefaultFirstrunPagerAdapter
 import org.mozilla.focus.firstrun.UpgradeFirstrunPagerAdapter
 import org.mozilla.focus.navigation.ScreenNavigator.Screen
+import org.mozilla.focus.telemetry.TelemetryHelper
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.utils.AppConstants
 import org.mozilla.focus.utils.DialogUtils
@@ -138,6 +139,7 @@ class FirstrunFragment : Fragment(), View.OnClickListener, Screen {
     }
 
     private fun findPagerAdapter(context: Context, onClickListener: View.OnClickListener): PagerAdapter? {
+        TelemetryHelper.firstLaunchVersion(context)
         TelemetryWrapper.statsShowFirstRun()
         val pagerAdapter: PagerAdapter?
         val shown = NewFeatureNotice.getInstance(getContext()).hasShownFirstRun()

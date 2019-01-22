@@ -19,7 +19,6 @@ import org.mozilla.focus.Inject
 import org.mozilla.focus.R
 import org.mozilla.focus.provider.ScreenshotContract
 import org.mozilla.focus.search.SearchEngineManager
-import org.mozilla.focus.telemetry.TelemetryWrapper.EventBuilder.Companion.remoteConfigFetched
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.CLICK_NEXT
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.CLICK_PREVIOUS
 import org.mozilla.focus.telemetry.TelemetryWrapper.FIND_IN_PAGE.DISMISS
@@ -313,6 +312,7 @@ object TelemetryWrapper {
         }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
             name = "Firebase RemoteConfig Fetched",
             category = Category.ACTION,
@@ -322,10 +322,13 @@ object TelemetryWrapper {
             extras = [])
     @JvmStatic
     fun firebaseRemoteConfigFetched() {
-        remoteConfigFetched = true
-        EventBuilder(Category.ACTION, Method.INIT, Object.FIREBASE).queue()
+        TelemetryHelper.remoteConfigFetched = true
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_REMOTE_CONFIG_FETCHED) {
+            EventBuilder(Category.ACTION, Method.INIT, Object.FIREBASE).queue()
+        }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
         name = "RemoteConfig ready when first run ends",
         category = Category.EXPERIMENT,
@@ -335,16 +338,17 @@ object TelemetryWrapper {
         extras = [TelemetryExtra(name = Extra.SUCCESS, value = "true/false")]
     )
     fun statsFinishFirstRunEvent() {
-        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_RUN_END) {
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_FIRST_RUN_END) {
             EventBuilder(
                 Category.EXPERIMENT,
                 Method.REMOTE_CONFIG_FETCHED,
                 Object.FIRSTRUN,
                 Value.FINISH
-            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+            ).extra(Extra.SUCCESS, TelemetryHelper.remoteConfigFetched.toString()).queue()
         }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
         name = "RemoteConfig ready when first run shown",
         category = Category.EXPERIMENT,
@@ -355,16 +359,17 @@ object TelemetryWrapper {
     )
     @JvmStatic
     fun statsShowFirstRun() {
-        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_RUN_SHOWN) {
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_FIRST_RUN_SHOWN) {
             EventBuilder(
                 Category.EXPERIMENT,
                 Method.REMOTE_CONFIG_FETCHED,
                 Object.FIRSTRUN,
                 Value.ENTER
-            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+            ).extra(Extra.SUCCESS, TelemetryHelper.remoteConfigFetched.toString()).queue()
         }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
         name = "RemoteConfig ready when Home Toolbar Level 1 shown",
         category = Category.EXPERIMENT,
@@ -375,13 +380,14 @@ object TelemetryWrapper {
     )
     @JvmStatic
     fun statsShowHome() {
-        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_HOME) {
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_FIRST_SHOW_HOME) {
             EventBuilder(Category.EXPERIMENT, Method.REMOTE_CONFIG_FETCHED, Object.HOME, Value.ENTER)
-                .extra(Extra.SUCCESS, remoteConfigFetched.toString())
+                .extra(Extra.SUCCESS, TelemetryHelper.remoteConfigFetched.toString())
                 .queue()
         }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
         name = "RemoteConfig ready when Home Toolbar Level 2 shown",
         category = Category.EXPERIMENT,
@@ -392,16 +398,17 @@ object TelemetryWrapper {
     )
     @JvmStatic
     fun statsShowMenuHome() {
-        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_HOME_MEU) {
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_FIRST_SHOW_HOME_MEU) {
             EventBuilder(
                 Category.EXPERIMENT,
                 Method.REMOTE_CONFIG_FETCHED,
                 Object.HOME,
                 Value.TOOLBAR
-            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+            ).extra(Extra.SUCCESS, TelemetryHelper.remoteConfigFetched.toString()).queue()
         }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
         name = "RemoteConfig ready when Browser Toolbar level 1 shown",
         category = Category.EXPERIMENT,
@@ -412,16 +419,17 @@ object TelemetryWrapper {
     )
     @JvmStatic
     fun statsRaiseBrowserScreen() {
-        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_BROWSER) {
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_FIRST_SHOW_BROWSER) {
             EventBuilder(
                 Category.EXPERIMENT,
                 Method.REMOTE_CONFIG_FETCHED,
                 Object.BROWSER,
                 Value.ENTER
-            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+            ).extra(Extra.SUCCESS, TelemetryHelper.remoteConfigFetched.toString()).queue()
         }
     }
 
+    @Due(date = "2019-10-30", reason = "Impact the performance for loading DefaultSharedPreferences")
     @TelemetryDoc(
         name = "RemoteConfig ready when Browser Toolbar level 2 shown",
         category = Category.EXPERIMENT,
@@ -432,13 +440,13 @@ object TelemetryWrapper {
     )
     @JvmStatic
     fun statsShowMenuToolbar() {
-        Stats.collectOnce(TelemetryHolder.get().configuration.context, Stats.RC_READY_FIRST_SHOW_BROWSER_MENU) {
+        TelemetryHelper.onFirstLaunch(TelemetryHolder.get().configuration.context, TelemetryHelper.RC_READY_FIRST_SHOW_BROWSER_MENU) {
             EventBuilder(
                 Category.EXPERIMENT,
                 Method.REMOTE_CONFIG_FETCHED,
                 Object.BROWSER,
                 Value.TOOLBAR
-            ).extra(Extra.SUCCESS, remoteConfigFetched.toString()).queue()
+            ).extra(Extra.SUCCESS, TelemetryHelper.remoteConfigFetched.toString()).queue()
         }
     }
 
@@ -2101,8 +2109,6 @@ object TelemetryWrapper {
         }
 
         companion object {
-
-            var remoteConfigFetched = false
 
             fun lazyInit() {
 

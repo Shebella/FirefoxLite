@@ -295,7 +295,7 @@ abstract class FirebaseWrapper {
     }
 
     // This need to be run in worker thread since FirebaseRemoteConfigSettings has IO access
-    static void enableRemoteConfig(Context context, boolean enable, Runnable callback) {
+    static void enableRemoteConfig(Context context, boolean enable, @Nullable Runnable callback) {
         if (!enable) {
             remoteConfig = null;
             return;
@@ -322,7 +322,7 @@ abstract class FirebaseWrapper {
     // Call this method to refresh the value in remote config.
     // Client code can access the remote config value in UI thread. But if the work here is not done,
     // it'll still see the old value.
-    private static void refreshRemoteConfig(final Runnable callback) {
+    private static void refreshRemoteConfig(@Nullable final Runnable callback) {
         final FirebaseRemoteConfig config = remoteConfig.get();
         if (config == null) {
             return;
@@ -333,7 +333,9 @@ abstract class FirebaseWrapper {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "Firebase RemoteConfig Fetch Successfully ");
                     config.activateFetched();
-                    callback.run();
+                    if (callback != null) {
+                        callback.run();
+                    }
                 } else {
                     Log.d(TAG, "Firebase RemoteConfig Fetch Failed: ");
                 }
