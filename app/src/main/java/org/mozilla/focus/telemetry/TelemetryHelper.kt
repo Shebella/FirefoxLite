@@ -29,7 +29,7 @@ class TelemetryHelper {
     companion object {
 
         @JvmStatic
-        private var isFirstLaunch = false   // the app is in a state when it's first launched after installation
+        private var isFirstLaunch = false // the app is in a state when it's first launched after installation
 
         // the app is in a state when it's Firebase Remote Config is fetched. It's only useful when the app is launched
         // for the first time. Because the successive launch may not fetch the remote config due to it's time threshold.
