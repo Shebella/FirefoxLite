@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:innerRadiusRatio="2"
+    android:shape="ring"
+    android:thicknessRatio="1"
+    android:useLevel="false">
+    <gradient
+        android:endColor="@color/paletteLightGreyB100"
+        android:gradientRadius="4dp"
+        android:type="radial" />
+    <!--android:gradientRadius="4dp"-->
+    <!--android:endColor="@color/paletteLightGreyB100"-->
+</shape>
