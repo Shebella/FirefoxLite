@@ -64,6 +64,7 @@ object TelemetryWrapper {
     internal object Category {
         const val ACTION = "action"
         const val EVENT_DOWNLOADS = "Downloads"
+        const val ENGINE = "Engine"
     }
 
     internal object Method {
@@ -122,6 +123,7 @@ object TelemetryWrapper {
         const val BANNER = "banner"
         const val DOORHANGER = "doorhanger"
         const val VPN_DOORHANGER = "vpn_doorhanger"
+        const val SEARCH = "search"
     }
 
     object Value {
@@ -1920,6 +1922,18 @@ object TelemetryWrapper {
     @JvmStatic
     fun clickDefaultBrowserInSetting() {
         AdjustHelper.trackEvent(EVENT_SET_DEFAULT_BROWSER)
+    }
+
+    @TelemetryDoc(
+            name = "Click Quick Search",
+            category = Category.ENGINE,
+            method = Method.CLICK,
+            `object` = Object.SEARCH,
+            value = "Quick Search Engine",
+            extras = [])
+    @JvmStatic
+    fun clickQuickSearchEngine(engineName: String) {
+        EventBuilder(Category.ENGINE, Method.CLICK, Object.SEARCH, engineName).queue()
     }
 
     internal class EventBuilder @JvmOverloads constructor(category: String, method: String, `object`: String?, value: String? = null) {

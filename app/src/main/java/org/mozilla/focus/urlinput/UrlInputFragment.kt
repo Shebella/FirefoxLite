@@ -96,6 +96,7 @@ class UrlInputFragment : Fragment(), UrlInputContract.View, View.OnClickListener
         val searchPortalAdapter = SearchPortalAdapter(fun (portal: SearchPortal) {
             if (TextUtils.isEmpty(urlView.text)) openUrl(portal.homeUrl)
             else openUrl(String.format(portal.searchUrlPattern, urlView.text))
+            TelemetryWrapper.clickQuickSearchEngine(portal.name)
         })
         searchPortalView.adapter = searchPortalAdapter
         Inject.obtainSearchPortalViewModel(activity).searchPortalObservable.observe(viewLifecycleOwner, Observer { searchPortals ->
