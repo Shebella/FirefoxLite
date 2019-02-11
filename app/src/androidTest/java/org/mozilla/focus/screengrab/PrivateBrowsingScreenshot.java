@@ -95,7 +95,7 @@ public class PrivateBrowsingScreenshot extends BaseScreenshot {
         onView(withId(R.id.btn_delete)).perform(click());
 
         // Check private browsing is cleared toast is displayed
-        AndroidTestUtils.toastContainsText(activityTestRule.getActivity(), R.string.private_browsing_erase_done);
+//        AndroidTestUtils.toastContainsText(activityTestRule.getActivity(), R.string.private_browsing_erase_done);
 
         // Take screenshot
         Screengrab.screenshot(ScreenshotNamingUtils.PRIVATE_ERASING_TOAST);
