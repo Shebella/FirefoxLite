@@ -5,12 +5,21 @@
 
 package org.mozilla.rocket.privately
 
+import android.app.DownloadManager
 import android.arch.lifecycle.ViewModelProviders
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
 import android.os.Bundle
 import android.support.annotation.CheckResult
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v4.content.LocalBroadcastManager
 import android.view.View
+import android.view.ViewGroup
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import org.mozilla.focus.BuildConfig
 import org.mozilla.focus.R
@@ -23,6 +32,7 @@ import org.mozilla.focus.navigation.ScreenNavigator.Screen
 import org.mozilla.focus.navigation.ScreenNavigator.UrlInputScreen
 import org.mozilla.focus.telemetry.TelemetryWrapper
 import org.mozilla.focus.urlinput.UrlInputFragment
+import org.mozilla.focus.utils.IntentUtils
 import org.mozilla.focus.widget.FragmentListener
 import org.mozilla.focus.widget.FragmentListener.TYPE
 import org.mozilla.rocket.component.PrivateSessionNotificationService
@@ -31,6 +41,9 @@ import org.mozilla.rocket.privately.home.PrivateHomeFragment
 import org.mozilla.rocket.tabs.SessionManager
 import org.mozilla.rocket.tabs.TabViewProvider
 import org.mozilla.rocket.tabs.TabsSessionProvider
+import java.io.File
+import java.net.URLEncoder
+import java.util.Locale
 
 class PrivateModeActivity : BaseActivity(),
         FragmentListener,
@@ -42,6 +55,32 @@ class PrivateModeActivity : BaseActivity(),
     private lateinit var tabViewProvider: PrivateTabViewProvider
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var screenNavigator: ScreenNavigator
+    private val downloadCompleteReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+
+            Thread(Runnable {
+                val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                val query = DownloadManager.Query()
+                query.setFilterById(downloadId)
+                downloadManager.query(query).use {
+                    if (it.moveToNext()) {
+                        val fileUri = it.getString(it.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
+
+                        val extension = MimeTypeMap.getFileExtensionFromUrl(URLEncoder.encode(fileUri, "UTF-8"))
+                        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT))
+                        val completedStr = getString(R.string.download_completed, File(Uri.parse(fileUri).path).name)
+                        runOnUiThread({
+                            val snackBarContainer = findViewById<ViewGroup>(R.id.root)
+                            val snackbar = Snackbar.make(snackBarContainer, completedStr, Snackbar.LENGTH_LONG)
+                            snackbar.setAction(R.string.open) { _ -> IntentUtils.intentOpenFile(context, Uri.parse(fileUri).path, mimeType) }
+                            snackbar.show()
+                        })
+                    }
+                }
+            }).start()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // we don't keep any state if user leave Private-mode
@@ -63,6 +102,17 @@ class PrivateModeActivity : BaseActivity(),
         initViewModel()
 
         screenNavigator.popToHomeScreen(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val intentFilter = IntentFilter(IntentUtils.ACTION_PRIVATELY_DOWNLOAD_COMPLETE)
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadCompleteReceiver, intentFilter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(downloadCompleteReceiver)
     }
 
     private fun initViewModel() {

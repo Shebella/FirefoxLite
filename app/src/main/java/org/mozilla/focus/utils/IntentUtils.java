@@ -48,7 +48,7 @@ public class IntentUtils {
     public static final String EXTRA_NOTIFICATION_CLICK_PRIVACY_POLICY_UPDATE = "ex_no_click_privacy_policy_update";
 
     public static final String ACTION_NOTIFICATION = "action_notification";
-
+    public static final String ACTION_PRIVATELY_DOWNLOAD_COMPLETE = "action_privately_download_complete";
 
     /**
      * Find and open the appropriate app for a given Uri. If appropriate, let the user select between
@@ -273,6 +273,13 @@ public class IntentUtils {
         privacyPolicyUpdate.setAction(IntentUtils.ACTION_NOTIFICATION);
         privacyPolicyUpdate.putExtra(IntentUtils.EXTRA_NOTIFICATION_CLICK_PRIVACY_POLICY_UPDATE, true);
         return privacyPolicyUpdate;
+    }
+
+    public static Intent genPrivatelyDownloadCompleteForBroadcastReceiver(final Long downloadId) {
+        final Intent intent = new Intent();
+        intent.setAction(IntentUtils.ACTION_PRIVATELY_DOWNLOAD_COMPLETE);
+        intent.putExtra(DownloadManager.EXTRA_DOWNLOAD_ID, downloadId);
+        return intent;
     }
 
     @CheckResult

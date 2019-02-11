@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.text.TextUtils
@@ -13,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.URLUtil
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -377,11 +379,18 @@ class BrowserFragment : LocaleAwareFragment(),
         override fun onDownloadStart(download: Download) {
             if (!TextUtils.isEmpty(download.url)) {
                 val cookie = CookieManager.getInstance().getCookie(download.getUrl())
+                val fileName: String?
+                if (download.name != null) {
+                    fileName = download.name
+                } else {
+                    fileName = URLUtil.guessFileName(download.url, download.contentDisposition, download.mimeType)
+                }
                 val request = DownloadManager.Request(Uri.parse(download.url))
                         .addRequestHeader("User-Agent", download.getUserAgent())
                         .addRequestHeader("Cookie", cookie)
                         .addRequestHeader("Referer", refererUrl)
                         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
                         .setMimeType(download.getMimeType())
 
                 val mgr = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

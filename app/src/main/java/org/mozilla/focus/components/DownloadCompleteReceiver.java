@@ -11,10 +11,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import org.mozilla.focus.download.DownloadInfo;
 import org.mozilla.focus.download.DownloadInfoManager;
+import org.mozilla.focus.utils.IntentUtils;
+import org.mozilla.rocket.privately.PrivateMode;
 import org.mozilla.threadutils.ThreadUtils;
 
 import java.io.File;
@@ -71,6 +74,10 @@ public class DownloadCompleteReceiver extends BroadcastReceiver {
                     // Download canceled
                     if (!downloadInfo.existInDownloadManager()) {
                         DownloadInfoManager.getInstance().delete(downloadInfo.getRowId(), null);
+                    }
+                } else {
+                    if (PrivateMode.hasPrivateSession(context)) {
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(IntentUtils.genPrivatelyDownloadCompleteForBroadcastReceiver(downloadId));
                     }
                 }
             }
