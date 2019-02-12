@@ -7,6 +7,7 @@ package org.mozilla.focus.activity;
 
 import android.content.Intent;
 import android.support.annotation.Keep;
+import android.support.test.filters.RequiresDevice;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -55,12 +56,13 @@ public class PrivateBrowsingTest {
      * Test case no: TC0108
      * Test case name: Open private mode and back when browser tab number is 0
      * Steps:
-     * 1. Launch Rocket
+     * 1. Launch app
      * 2. Tap menu
      * 3. Tap private mode
      * 4. Tap private button to be back normal mode
      * 5. Check tab tray number is 0
      */
+    @RequiresDevice
     @Test
     public void openPrivateModeAndBack_whenBrowserTabNumberZero() {
 
@@ -84,7 +86,7 @@ public class PrivateBrowsingTest {
      * Test case no: TC0109
      * Test case name: Open private mode and back when browser tab number is over 0
      * Steps:
-     * 1. Launch Rocket with tab number is 2 (by searching site_1 and then site2)
+     * 1. Launch app with tab number is 2 (by searching site_1 and then site2)
      * 2. Tap menu -> private mode
      * 3. Tap private button to be back normal mode
      * 4. Check tab number is 2
@@ -94,6 +96,7 @@ public class PrivateBrowsingTest {
      * 8. Tab system back key
      * 9. Check top item (site_2) focused
      */
+    @RequiresDevice
     @Test
     public void openPrivateModeAndBack_whenBrowserTabNumbeOverZero() {
 
